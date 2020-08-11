@@ -1,7 +1,7 @@
 import os, shutil, hashlib, sqlite3, subprocess, struct
 
 
-USER_NAME = 'turut'
+USER_NAME = 'Lee'
 DATA_DIR = 'c:/Users/{0}/AppData/LocalLow/Cygames/PrincessConnectReDive'.format(USER_NAME)
 CURRENT_DIR = os.path.dirname(os.path.realpath(__file__))
 MANIFEST_FILENAME = 'manifest.db'
@@ -70,7 +70,7 @@ def copy_db_files(files, src_dir, dst_dir):
 
 def execute_get_words(*args):
     output = subprocess.check_output(args)
-    return [line.split(' ') for line in output.split(os.linesep)]
+    return [line.split(b' ') for line in output.split(str.encode(os.linesep))]
 
 
 def process_awb(awb):
@@ -83,7 +83,7 @@ def process_awb(awb):
 
     stream_count = 1
     for line in lines:
-        if len(line) > 2 and line[0].startswith('stream') and line[1].startswith('count'):
+        if len(line) > 2 and line[0].startswith(b'stream') and line[1].startswith(b'count'):
             stream_count = int(line[2])
             break
 
@@ -104,18 +104,18 @@ def decompress_awb(awb_path, out_dir, index = 1):
 
     names = []
     for line in lines:
-        if len(line) > 2 and line[0].startswith('stream') and line[1].startswith('name'):
-            names = ' '.join(line[2:]).split('; ')
+        if len(line) > 2 and line[0].startswith(b'stream') and line[1].startswith(b'name'):
+            names = b' '.join(line[2:]).split(b'; ')
             break
     
-    out_name = names[0] + '.wav'
+    out_name = names[0] + b'.wav'
 
     loop_arg = '-F'
     loops = DEFAULT_LOOPS
     if loops > 0:
         loop_arg = '-l {0}'.format(loops)
 
-    out_path = os.path.join(out_dir, out_name)
+    out_path = os.path.join(out_dir, str(out_name)[2:-1])
     subprocess.call([VGMSTREAM_PATH, loop_arg, '-s', str(index), '-o', out_path, awb_path])
     print('')
 
